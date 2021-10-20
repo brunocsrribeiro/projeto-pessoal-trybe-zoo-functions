@@ -1,45 +1,45 @@
 const { employees, species } = require('../data/zoo_data');
 
-const getName = (obj) => employees
-  .find((employ) => (employ.firstName === obj || employ.lastName === obj || employ.id === obj));
+// Este requisito foi desenvolvido com a ajuda do colega Bruno Marques
+// https://github.com/blmarquess
+// Retorna um objeto de uma pessoa pelo nome, sobrenome ou Id passado como argumento na funcao
+const getObjectPerson = (person) => employees
+  .find((emp) => (emp.firstName === person || emp.lastName === person || emp.id === person));
 
-const getSpecieName = (animal) => species.find((specie) => specie.id === animal);
+// Retorna o objeto de uma especie a partir do Id passado como argumento da funcao
+const getObjectSpecies = (objSpecies) => species.find((specie) => specie.id === objSpecies);
 
-const createObj = (arg) => ({
-  id: getName(arg).id,
-  fullName: `${getName(arg).firstName} ${
-    getName(arg).lastName
+// Essa funcao cria um objeto, utilizando callbacks para atribuir valores as chaves do objeto
+const createdObj = (objectInfo) => ({
+  id: getObjectPerson(objectInfo).id,
+  fullName: `${getObjectPerson(objectInfo).firstName} ${
+    getObjectPerson(objectInfo).lastName
   }`,
-  species: getName(arg)
-    .responsibleFor.map((el) => getSpecieName(el).name),
-  locations: getName(arg)
-    .responsibleFor.map((el) => getSpecieName(el).location),
+  species: getObjectPerson(objectInfo)
+    .responsibleFor.map((elName) => getObjectSpecies(elName).name),
+  locations: getObjectPerson(objectInfo)
+    .responsibleFor.map((elLocation) => getObjectSpecies(elLocation).location),
 });
 
-const xxx = (y) => employees
-  .some((employ) => (employ.firstName === y || employ.lastName === y || employ.id === y));
+// Essa funcao auxilia criacao da regra de negocio da funcao validate
+const businessRules = (rules) => employees
+  .some((emp) => (emp.firstName === rules || emp.lastName === rules || emp.id === rules));
 
-const validate = (person) => {
-  if (xxx(person)) {
-    return createObj(person);
-  }
+//  Essa funcao valida se algum argumento é passado para o funcao getEmployeesCoverage, caso não, seja ela retorna um erro
+const validatedInfo = (personsInfo) => {
+  if (businessRules(personsInfo)) { return createdObj(personsInfo); }
 
   throw new Error('Informações inválidas');
 };
 
-function getEmployeesCoverage(stress) {
-  // seu código aqui
-  if (!stress) { return employees.map((el) => createObj(el.firstName)); }
-  const { name, id } = stress;
-  if (!id) { return validate(name); }
-  return validate(id);
+// Essa funcao valida se e passado algum argumento e retorna um objeto com as informacoes
+function getEmployeesCoverage(objectOfCover) {
+  if (!objectOfCover) { return employees.map((el) => createdObj(el.firstName)); }
+
+  const { name, id } = objectOfCover;
+
+  if (!id) { return validatedInfo(name); }
+  return validatedInfo(id);
 }
-
-// console.log(getEmployeesCoverage({ id: 'c1f50212-35a6-4ecd-8223-f835538526c2' }));
-// console.log(obj('Sharonda'));
-
-// const pessoa1 = getName("Sharonda");
-// pessoa1.responsibleFor.map((el) => getSpecieName(el).name);
-// pessoa1.responsibleFor.map((el) => getSpecieName(el).location);
 
 module.exports = getEmployeesCoverage;
